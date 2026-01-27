@@ -3,14 +3,14 @@ server:
 
 spring:
   datasource:
-    url: jdbc://postgresql://localhost:5432/commerce
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/izzatbek_db
+    username: izzatbek
+    password: admin2003
     driver-class-name: org.postgresql.Driver
   jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        hbm2ddl:
-          auto: update
-        show_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDriver
+        dialect: org.hibernate.dialect.PostgreSQLDialect
