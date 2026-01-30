@@ -1,4 +1,4 @@
 package com.server.controller;
 
-public class CartController {
+public class ProductController {
 }

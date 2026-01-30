@@ -1,4 +1,12 @@
 package com.server.dto;
 
-public class ErrorResponse {
+import java.time.LocalDateTime;
+
+public record ErrorResponse(
+        int status,
+        String error,
+        String message,
+        String path,
+        LocalDateTime time
+) {
 }
