@@ -4,15 +4,20 @@ LABEL author="Soft Uzbek Slogan"
 
 WORKDIR /app
 
-COPY . .
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle gradle
 
-RUN gradle bootJar --no-daemon -x test
+RUN ./gradlew dependencies --no-daemon
+
+COPY src src
+
+RUN ./gradlew bootJar --no-daemon -x test
 
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/build/libs/*.jar app/app.jar
+COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 

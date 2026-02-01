@@ -1,9 +1,4 @@
-
-.dockerignore
-.env
-.gradle/
-build/
-.ideal/
-.vscode/
+.gradle
+build
 .gitignore
-.git/
+.env
