@@ -10,6 +10,7 @@ import com.server.repository.CartRepository;
 import com.server.repository.ProductRepository;
 import com.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,20 +26,35 @@ public class CartService {
     private final ProductRepository productRepository;
 
     public Cart getOrCreateCart(User user) {
-        return cartRepository.findCartByUser(user)
+        final User currentUser = (user != null) ? user : getCurrentAuthenticatedUser();
+
+        return cartRepository.findCartByUser(currentUser)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
-                    newCart.setUser(user);
+                    newCart.setUser(currentUser);
                     return cartRepository.save(newCart);
                 });
     }
 
-    private Cart getUserCart() {
-        String email = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi!"));
-        return getOrCreateCart(user);
+    private User getCurrentAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // NullPointerException oldini olish uchun authentication tekshiriladi
+        if (authentication == null) {
+            throw new NotFoundException("Autentifikatsiya ma'lumotlari topilmadi!");
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof User u) {
+            return u;
+        }
+
+        String identifier = authentication.getName();
+        return userRepository.findByEmail(identifier)
+                .orElseGet(() -> userRepository.findByEmail(identifier)
+                        .orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi!")));
     }
+
 
     @Transactional
     public Cart addToCart(User user, long productId, int quantity) {
@@ -67,8 +83,8 @@ public class CartService {
     }
 
     @Transactional
-    public CartDto updateItemQuantity(Long itemId, int quantity) {
-        Cart cart = getUserCart();
+    public CartDto updateItemQuantity(User user, Long itemId, int quantity) {
+        Cart cart = getOrCreateCart(user);
 
         CartItem item = cart.getItems().stream()
                 .filter(i -> Objects.equals(i.getId(), itemId))
@@ -87,8 +103,8 @@ public class CartService {
     }
 
     @Transactional
-    public void clearCart() {
-        Cart cart = getUserCart();
+    public void clearCart(User user) {
+        Cart cart = getOrCreateCart(user);
         cart.getItems().clear();
         cartRepository.save(cart);
     }
