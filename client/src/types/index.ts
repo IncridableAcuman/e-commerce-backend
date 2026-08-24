@@ -1,29 +1,33 @@
-export enum Role {
-  USER = 'USER',
-  ADMIN = 'ADMIN'
-}
+export const Role = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+} as const;
+export type Role = (typeof Role)[keyof typeof Role];
 
-export enum Category {
-  KIDS = 'KIDS',
-  MEN = 'MEN',
-  WOMEN = 'WOMEN'
-}
+export const Category = {
+  KIDS: 'KIDS',
+  MEN: 'MEN',
+  WOMEN: 'WOMEN',
+} as const;
+export type Category = (typeof Category)[keyof typeof Category];
 
-export enum Size {
-  X = 'X',
-  L = 'L',
-  XL = 'XL',
-  XXL = 'XXL',
-  M = 'M'
-}
+export const Size = {
+  X: 'X',
+  L: 'L',
+  XL: 'XL',
+  XXL: 'XXL',
+  M: 'M',
+} as const;
+export type Size = (typeof Size)[keyof typeof Size];
 
-export enum OrderStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  SHIPPED = 'SHIPPED',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED'
-}
+export const OrderStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+} as const;
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 
 export interface UserDto {
   id: number;
@@ -46,7 +50,7 @@ export interface ProductResponse {
   image: string;
   price: number;
   category: Category;
-  sizes: Size;
+  size: Size;
 }
 
 export interface PageResponse<T> {
@@ -58,17 +62,16 @@ export interface PageResponse<T> {
 }
 
 export interface CartItemDto {
+  id: number;
+  product: ProductResponse;
   quantity: number;
   total: number;
-  title: string;
-  price: number;
-  image: string;
 }
 
 export interface CartDto {
   id: number;
   items: CartItemDto[];
-  userId: number;
+  totalAmount: number;
 }
 
 export interface OrderItemResponse {

@@ -4,6 +4,7 @@ import com.server.dto.PageResponse;
 import com.server.dto.ProductRequest;
 import com.server.dto.ProductResponse;
 import com.server.entity.Product;
+import com.server.enums.Category;
 import com.server.exception.NotFoundException;
 import com.server.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -68,6 +69,25 @@ public class ProductService {
         product.setSize(request.getSize());
         product = saveProduct(product);
         return ProductResponse.from(product);
+    }
+
+    // Mahsulotni o'chirish
+    @Transactional
+    @CacheEvict(value = "products", allEntries = true)
+    public void delete(Long id) {
+        Product product = findProduct(id);
+        productRepository.delete(product);
+    }
+
+    // Qidiruv va Filtratsiya
+    public PageResponse<ProductResponse> searchProducts(
+            String query, Category category, Double minPrice, Double maxPrice, int page, int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<ProductResponse> products = productRepository
+                .filterProducts(query, category, minPrice, maxPrice, pageable)
+                .map(ProductResponse::from);
+        return PageResponse.from(products);
     }
 
     public Product findProduct(long id){
