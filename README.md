@@ -2,6 +2,8 @@
 
 A scalable and production-ready E-Commerce Backend built with Node.js, Express.js, MongoDB, and JWT Authentication. This project provides all essential e-commerce functionalities including authentication, product management, cart management, order processing, reviews, wishlist, coupons, and payment integration.
 
+![image](./client/public/image.png)
+
 ## 🚀 Features
 
 ### Authentication & Authorization
