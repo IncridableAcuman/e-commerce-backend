@@ -11,9 +11,12 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +40,10 @@ public class ProductService {
         product = saveProduct(product);
         return ProductResponse.from(product);
     }
-    public List<ProductResponse> getList(){
-        List<Product> products = productRepository.findAll();
-        return products.stream().map(ProductResponse::from).toList();
+    @Cacheable(value = "products", key = "'allProducts_' + #page + '_' + #size")
+    public Page<ProductResponse> getList(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return productRepository.findAll(pageable).map(ProductResponse::from);
     }
     @Cacheable(key = "#id")
     public ProductResponse getProduct(long id){

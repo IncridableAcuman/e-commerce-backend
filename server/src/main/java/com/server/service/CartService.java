@@ -22,43 +22,42 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
+    // CartService.java
     @Transactional
-    public Cart createCartForUser(User user){
-        Cart cart = new Cart();
-        cart.setUser(user);
-        cart.setItems(new ArrayList<>());
-        return cartRepository.save(cart);
+    public Cart getOrCreateCart(User user) {
+        return cartRepository.findCartByUser(user)
+                .orElseGet(() -> {
+                    Cart cart = new Cart();
+                    cart.setUser(user);
+                    cart.setItems(new ArrayList<>());
+                    return cartRepository.save(cart);
+                });
     }
-    @Transactional
-    public Cart addToCart(User user,long productId,int quantity){
-        Cart cart = cartRepository.findCartByUser(user).orElseGet(()-> createCartForUser(user));
-        Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException("Product not found!"));
 
-        Optional<CartItem> existingCartItem = cart.getItems().stream().filter(ci->ci.getProduct().getId() == productId).findFirst();
-        if (existingCartItem.isPresent()){
-            CartItem ci = new CartItem();
-            ci.setQuantity(quantity);
-            ci.setTotal(quantity*product.getPrice());
+    @Transactional
+    public Cart addToCart(User user, long productId, int quantity) {
+        Cart cart = getOrCreateCart(user);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found!"));
+
+        Optional<CartItem> existingCartItem = cart.getItems().stream()
+                .filter(ci -> ci.getProduct().getId() == productId)
+                .findFirst();
+
+        if (existingCartItem.isPresent()) {
+            CartItem ci = existingCartItem.get();
+            ci.setQuantity(ci.getQuantity() + quantity);
+            ci.setTotal(ci.getQuantity() * product.getPrice());
             cartItemRepository.save(ci);
         } else {
             CartItem item = new CartItem();
             item.setCart(cart);
             item.setProduct(product);
             item.setQuantity(quantity);
-            item.setTotal(quantity*product.getPrice());
+            item.setTotal(quantity * product.getPrice());
             cartItemRepository.save(item);
             cart.getItems().add(item);
         }
-
-        return cartRepository.save(cart);
-    }
-    @Transactional
-    public Cart removeItem(User user,long itemId){
-        Cart cart = cartRepository.findCartByUser(user).orElseThrow(()->new NotFoundException("Cart not found!"));
-        CartItem item = cart.getItems().stream().filter(ci->ci.getId() == itemId).findFirst().orElseThrow(()->new NotFoundException("Item not found"));
-        cart.getItems().remove(item);
-        cartItemRepository.delete(item);
-
         return cartRepository.save(cart);
     }
 }

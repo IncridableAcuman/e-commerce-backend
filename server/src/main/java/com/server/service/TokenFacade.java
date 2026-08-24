@@ -18,7 +18,7 @@ public class TokenFacade {
 
     public String issueTokens(User user, HttpServletResponse response){
         TokenPair tokens = jwtUtil.getTokens(user);
-        tokenService.saveToken(user,tokens.accessToken());
+        tokenService.saveToken(user,tokens.refreshToken());
         cookieUtil.addCookie(tokens.refreshToken(),response);
         return tokens.accessToken();
     }

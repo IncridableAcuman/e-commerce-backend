@@ -17,19 +17,14 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping
-    public ResponseEntity<CartDto> createCartForUser(@AuthenticationPrincipal User user){
-       Cart cart = cartService.createCartForUser(user);
-       return ResponseEntity.ok(CartMapper.toDto(cart));
+    public ResponseEntity<CartDto> getCart(@AuthenticationPrincipal User user){
+        Cart cart = cartService.getOrCreateCart(user);
+        return ResponseEntity.ok(CartMapper.toDto(cart));
     }
 
     @PostMapping("/add")
     public ResponseEntity<CartDto> addToCart(@AuthenticationPrincipal User user, @RequestParam long productId, @RequestParam int quantity){
       Cart cart = cartService.addToCart(user,productId,quantity);
       return ResponseEntity.ok(CartMapper.toDto(cart));
-    }
-    @DeleteMapping("/remove/{itemId}")
-    public ResponseEntity<CartDto> removeItem(@AuthenticationPrincipal User user,@PathVariable long itemId){
-        Cart cart = cartService.removeItem(user,itemId);
-        return ResponseEntity.ok(CartMapper.toDto(cart));
     }
 }
