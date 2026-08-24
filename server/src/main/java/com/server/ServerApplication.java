@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.EnableCaching;
 public class ServerApplication {
 
 	public static void main(String[] args) {
+		
 		Dotenv dotenv = Dotenv.load();
 		for (DotenvEntry entry : dotenv.entries()){
 			System.setProperty(entry.getKey(),entry.getValue());

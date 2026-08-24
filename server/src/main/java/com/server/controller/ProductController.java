@@ -1,11 +1,11 @@
 package com.server.controller;
 
+import com.server.dto.PageResponse;
 import com.server.dto.ProductRequest;
 import com.server.dto.ProductResponse;
 import com.server.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +21,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductResponse>> getList(
+    public ResponseEntity<PageResponse<ProductResponse>> getList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
