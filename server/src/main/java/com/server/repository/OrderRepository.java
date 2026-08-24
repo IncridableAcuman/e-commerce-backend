@@ -9,5 +9,9 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
+    // Foydalanuvchining buyurtmalarini sana bo'yicha saralab olish
     List<Order> findAllByUserOrderByCreatedAtDesc(User user);
+
+    // Barcha buyurtmalarni sana bo'yicha kamayish tartibida olish (Admin uchun)
+    List<Order> findAllByOrderByCreatedAtDesc();
 }

@@ -15,6 +15,7 @@ import { ResetPasswordPage } from "./pages/ResetPassword";
 import { CartPage } from "./pages/Cart";
 import { OrdersPage } from "./pages/Orders";
 import { Admin } from "./pages/Admin";
+import {AdminOrdersPage} from "./pages/AdminOrdersPage.tsx";
 
 
 const NotFoundPage = () => (
@@ -53,6 +54,12 @@ export const App: React.FC = () => {
               {/* Admin routelar */}
               <Route element={<ProtectedRoute allowedRoles={[Role.ADMIN]} />}>
                 <Route path="/admin" element={<Admin />} />
+                <Route
+                    path="/admin/orders"
+                    element={
+                        <AdminOrdersPage />
+                    }
+                />
               </Route>
 
               <Route path="*" element={<NotFoundPage />} />

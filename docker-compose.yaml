@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # 1. Ma'lumotlar bazasi (PostgreSQL)
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: ecommerce_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-commerce}
+      POSTGRES_USER: ${DB_USER:-admin2003}
+      POSTGRES_PASSWORD: ${DB_PASS:-admin2003}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce_network
+
+  # 2. Kesh va Reaktiv amallar uchun Redis
+  redis_cache:
+    image: redis:7-alpine
+    container_name: ecommerce_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce_network
+
+  # 3. Spring Boot Backend API
+  backend_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecommerce_backend
+    restart: always
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    environment:
+      - PORT=${PORT:-8080}
+      - DB_HOST=postgres_db
+      - DB_NAME=${DB_NAME:-commerce}
+      - DB_USER=${DB_USER:-admin2003}
+      - DB_PASS=${DB_PASS:-admin2003}
+      - SPRING_DATA_REDIS_HOST=redis_cache
+      - SPRING_DATA_REDIS_PORT=6379
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASS=${MAIL_PASS}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_TIME=${JWT_ACCESS_TIME}
+      - JWT_REFRESH_TIME=${JWT_REFRESH_TIME}
+      - UPLOAD_DIR=${UPLOAD_DIR:-./uploads}
+    volumes:
+      - uploads_data:${UPLOAD_DIR:-./uploads}
+    depends_on:
+      - postgres_db
+      - redis_cache
+    networks:
+      - ecommerce_network
+
+  # 4. React / Vite Frontend
+  frontend_app:
+    build:
+      context: ./frontend  # Agar frontend alohida papkada bo'lsa yo'lini to'g'rilang
+      dockerfile: Dockerfile
+    container_name: ecommerce_frontend
+    restart: always
+    ports:
+      - "3000:3000"  # Tashqi brauzer uchun port
+    depends_on:
+      - backend_api
+    networks:
+      - ecommerce_network
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  ecommerce_network:
+    driver: bridge

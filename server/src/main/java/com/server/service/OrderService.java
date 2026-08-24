@@ -1,8 +1,10 @@
 package com.server.service;
 
+import com.server.dto.OrderResponse;
 import com.server.entity.*;
 import com.server.enums.OrderStatus;
 import com.server.exception.BadRequestException;
+import com.server.exception.NotFoundException;
 import com.server.repository.CartRepository;
 import com.server.repository.OrderRepository;
 import jakarta.transaction.Transactional;
@@ -52,5 +54,21 @@ public class OrderService {
 
     public List<Order> getUserOrders(User user) {
         return orderRepository.findAllByUserOrderByCreatedAtDesc(user);
+    }
+
+    // Barcha buyurtmalarni olish (Admin uchun)
+    public List<Order> getAllOrders() {
+        return orderRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    @Transactional
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Buyurtma topilmadi!"));
+
+        order.setStatus(status);
+        Order updatedOrder = orderRepository.save(order);
+
+        return OrderResponse.from(updatedOrder);
     }
 }

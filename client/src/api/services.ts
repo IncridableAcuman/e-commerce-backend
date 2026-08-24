@@ -1,7 +1,7 @@
 import type {
   AuthResponse,
   CartDto,
-  OrderResponse,
+  OrderResponse, OrderStatus,
   PageResponse,
   ProductResponse,
   UserDto,
@@ -82,11 +82,12 @@ export const cartApi = {
   clearCart: () =>
       api.delete<void>('/cart'),
 };
-
 export const orderApi = {
-  checkout: () =>
-      api.post<OrderResponse>('/orders/checkout'),
-
-  getOrders: () =>
-      api.get<OrderResponse[]>('/orders'),
+    checkout: () => api.post<OrderResponse>('/orders/checkout'),
+    getOrders: () => api.get<OrderResponse[]>('/orders'),
+    getAllOrders: () => api.get<OrderResponse[]>('/orders/all'), // Admin uchun
+    updateOrderStatus: (id: number, status: OrderStatus) =>
+        api.patch<OrderResponse>(`/orders/${id}/status`, null, {
+            params: { status },
+        }),
 };
